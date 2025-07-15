@@ -1,91 +1,773 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KamiNikah - Undangan Nikah Online</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <style>
-    body {
-      background: linear-gradient(to right, #f5f7fa, #c3cfe2);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-    .hero {
-      background-color: #fff;
-      padding: 80px 20px;
-      text-align: center;
-      border-radius: 15px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.1);
-    }
-    .section {
-      padding: 60px 20px;
-    }
-    .testimoni-img {
-      width: 80px;
-      height: 80px;
-      object-fit: cover;
-      border-radius: 50%;
-    }
-    footer {
-      background-color: #343a40;
-      color: white;
-      padding: 20px 0;
-      text-align: center;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Undangan Pernikahan Kami</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter (for general text) and Libre Baskerville (for titles, mimicking the original) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #e0e7db; /* Very light green background */
+            overflow-x: hidden;
+            scroll-behavior: smooth; /* Smooth scrolling for navigation */
+        }
+        .font-title {
+            font-family: 'Libre Baskerville', serif;
+        }
+        /* Custom scrollbar for webkit browsers */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #b1cba6; /* Primary green color */
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #7a8c71; /* Darker green on hover */
+        }
+        /* Hide scrollbar for Firefox */
+        html {
+            scrollbar-width: thin;
+            scrollbar-color: #b1cba6 #f1f1f1;
+        }
+
+        /* Styles for the falling leaves animation (mimicking original) */
+        #leaves i {
+            position: absolute;
+            background-image: url('https://placehold.co/20x20/7a8c71/FFFFFF?text='); /* Small placeholder for leaves */
+            background-size: contain;
+            background-repeat: no-repeat;
+            display: inline-block;
+            animation: falling 8s linear infinite;
+            opacity: 0.7;
+            z-index: 1;
+        }
+        #leaves i:nth-of-type(2n) { animation-delay: 2s; }
+        #leaves i:nth-of-type(3n) { animation-delay: 4s; }
+        #leaves i:nth-of-type(4n) { animation-delay: 6s; }
+        #leaves i:nth-of-type(5n) { animation-delay: 8s; }
+
+        @keyframes falling {
+            0% { transform: translateY(-50px) rotate(0deg); opacity: 0.7; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+    </style>
 </head>
-<body>
-  <div class="container mt-5">
-    <div class="hero">
-      <h1 class="display-5">Selamat Datang di <strong>KamiNikah</strong></h1>
-      <p class="lead">Platform Undangan Pernikahan Digital yang Unik dan Menarik</p>
-      <a href="#fitur" class="btn btn-primary mt-3">Lihat Fitur Kami</a>
+<body class="text-gray-800">
+
+    <!-- Welcome Screen (Initial Overlay) -->
+    <div id="welcome-screen" class="fixed inset-0 bg-cover bg-center flex items-center justify-center z-50 transition-opacity duration-1000" style="background-image: url('https://placehold.co/1920x1080/d2e0cc/7a8c71?text=Wedding+Background');">
+        <div class="absolute inset-0 bg-black bg-opacity-40 flex flex-col items-center justify-center text-white p-4">
+            <p class="text-xl font-light mb-2">The Wedding Of</p>
+            <h1 class="text-6xl font-bold font-title mb-4 animate-pulse">Adinda & John</h1>
+            <p class="text-lg mb-8">Anda Diundang</p>
+            <button id="open-invitation" class="bg-[#7a8c71] text-white px-8 py-3 rounded-full shadow-lg hover:bg-[#6b7c62] transition duration-300 transform hover:scale-105">
+                Buka Undangan
+            </button>
+        </div>
     </div>
 
-    <div class="section" id="fitur">
-      <h2 class="text-center mb-4">Fitur Kami</h2>
-      <div class="row text-center">
-        <div class="col-md-4">
-          <h5>Responsive Design</h5>
-          <p>Tampilan undangan yang indah di semua perangkat.</p>
+    <!-- Main Content (Hidden Initially) -->
+    <div id="main-content" class="hidden">
+
+        <!-- Floating Music Control -->
+        <div class="fixed top-4 right-4 z-40 bg-white rounded-full shadow-lg p-2 cursor-pointer transition-all duration-300 hover:scale-110" id="music-control">
+            <svg id="music-icon" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-music-note-list w-6 h-6 text-[#7a8c71]" viewBox="0 0 16 16">
+                <path d="M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2 2.5.895 2.5 2z"/>
+                <path fill-rule="evenodd" d="M12 3v10h-1V3h1z"/>
+                <path d="M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1V2.82z"/>
+                <path fill-rule="evenodd" d="M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5zm0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5zm0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5z"/>
+            </svg>
+            <audio id="background-music" loop src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"></audio> <!-- Placeholder music -->
         </div>
-        <div class="col-md-4">
-          <h5>Custom Tema</h5>
-          <p>Pilih tema sesuai selera dan nuansa pernikahan Anda.</p>
+
+        <!-- Bottom Navigation Bar -->
+        <nav class="fixed bottom-0 left-0 w-full bg-white shadow-lg p-3 z-30">
+            <ul class="flex justify-around items-center text-gray-700">
+                <li>
+                    <a href="#couple-profile" class="flex flex-col items-center p-2 rounded-lg hover:bg-[#d2e0cc] hover:text-[#7a8c71] transition duration-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-suit-heart-fill w-6 h-6" viewBox="0 0 16 16">
+                            <path d="M4 1c2.21 0 4 1.755 4 3.92C8 2.755 9.79 1 12 1s4 1.755 4 3.92c0 3.263-3.234 4.414-7.608 9.608a.513.513 0 0 1-.784 0C3.234 9.334 0 8.183 0 4.92 0 2.755 1.79 1 4 1z"/>
+                        </svg>
+                        <span class="text-xs mt-1">Couple</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#gallery" class="flex flex-col items-center p-2 rounded-lg hover:bg-[#d2e0cc] hover:text-[#7a8c71] transition duration-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-images w-6 h-6" viewBox="0 0 16 16">
+                            <path d="M4.502 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/>
+                            <path d="M14.002 13a2 2 0 0 1-2 2h-10a2 2 0 0 1-2-2V5A2 2 0 0 1 2 3a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8a2 2 0 0 1-1.998 2zM14 2H4a1 1 0 0 0-1 1h9.002a2 2 0 0 1 2 2v7A1 1 0 0 0 15 11V3a1 1 0 0 0-1-1zM2.002 4a1 1 0 0 0-1 1v8l2.646-2.354a.5.5 0 0 1 .63-.062l2.66 1.773 3.71-3.71a.5.5 0 0 1 .577-.094l1.777 1.947V5a1 1 0 0 0-1-1h-10z"/>
+                        </svg>
+                        <span class="text-xs mt-1">Galeri</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#event-details" class="flex flex-col items-center p-2 rounded-lg hover:bg-[#d2e0cc] hover:text-[#7a8c71] transition duration-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-calendar w-6 h-6" viewBox="0 0 16 16">
+                            <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
+                        </svg>
+                        <span class="text-xs mt-1">Acara</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#live-streaming" class="flex flex-col items-center p-2 rounded-lg hover:bg-[#d2e0cc] hover:text-[#7a8c71] transition duration-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-camera-video w-6 h-6" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M0 5a2 2 0 0 1 2-2h7.5a2 2 0 0 1 1.983 1.738l3.11-1.382A1 1 0 0 1 16 4.269v7.462a1 1 0 0 1-1.406.913l-3.111-1.382A2 2 0 0 1 9.5 13H2a2 2 0 0 1-2-2V5zm11.5 5.175l3.5 1.556V4.269l-3.5 1.556v4.35zM2 4a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h7.5a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1H2z"/>
+                        </svg>
+                        <span class="text-xs mt-1">Live</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#gifts" class="flex flex-col items-center p-2 rounded-lg hover:bg-[#d2e0cc] hover:text-[#7a8c71] transition duration-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-gift w-6 h-6" viewBox="0 0 16 16">
+                            <path d="M3 2.5a2.5 2.5 0 0 1 5 0 2.5 2.5 0 0 1 5 0v.006c0 1.1-.9 1.994-2.006 2.004H11V5a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4.504H3.006C1.906 4.504 1 3.604 1 2.504V2.5zm1.5 0a1 1 0 0 0-1 1V3a1 1 0 0 0 1 1h.5a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1h-.5zm7 0a1 1 0 0 0-1 1V3a1 1 0 0 0 1 1h.5a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1h-.5z"/>
+                            <path fill-rule="evenodd" d="M.5 9.932a.5.5 0 0 1 .447-.447l2.06-1.373L6.938 9.27a1 1 0 0 0 .924 0l4.036-2.062 2.06 1.373a.5.5 0 0 1 .447.447v2.071a.5.5 0 0 1-.5.5H15a.5.5 0 0 1-.5-.5V12a.5.5 0 0 0-.5-.5H3a.5.5 0 0 0-.5.5v.432a.5.5 0 0 1-.5.5H.5a.5.5 0 0 1-.5-.5v-2.07zM1.5 10a.5.5 0 0 0-.5.5v.432l1.917 1.278a.5.5 0 0 0 .57-.06l3.961-2.906c.77-.564 1.81-.564 2.58 0l3.96 2.906a.5.5 0 0 0 .57.06L15 10.932V10.5a.5.5 0 0 0-.5-.5H1.5z"/>
+                        </svg>
+                        <span class="text-xs mt-1">Kado</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#wishes" class="flex flex-col items-center p-2 rounded-lg hover:bg-[#d2e0cc] hover:text-[#7a8c71] transition duration-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-pencil-square w-6 h-6" viewBox="0 0 16 16">
+                            <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                            <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
+                        </svg>
+                        <span class="text-xs mt-1">Ucapan</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Custom Message Box Modal -->
+        <div id="custom-alert-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+            <div class="bg-white p-6 rounded-lg shadow-xl text-center max-w-sm mx-auto">
+                <p id="custom-alert-message" class="text-lg font-semibold text-gray-800 mb-4"></p>
+                <button id="custom-alert-ok-btn" class="bg-[#7a8c71] text-white px-6 py-2 rounded-full hover:bg-[#6b7c62] transition duration-300">OK</button>
+            </div>
         </div>
-        <div class="col-md-4">
-          <h5>Galeri & RSVP</h5>
-          <p>Bagikan momen dan kumpulkan konfirmasi kehadiran dengan mudah.</p>
-        </div>
-      </div>
+
+        <!-- Content Sections -->
+        <main class="container mx-auto p-4 pb-20">
+
+            <!-- Quotes Section -->
+            <section id="quotes" class="my-12 text-center bg-white p-8 rounded-xl shadow-lg relative overflow-hidden">
+                <img src="https://placehold.co/150x150/e0e7db/7a8c71?text=Flower" alt="Dekorasi Bunga" class="absolute top-0 left-0 transform -translate-x-1/4 -translate-y-1/4 rotate-180 opacity-30">
+                <img src="https://placehold.co/150x150/e0e7db/7a8c71?text=Flower" alt="Dekorasi Bunga" class="absolute bottom-0 right-0 transform translate-x-1/4 translate-y-1/4 opacity-30">
+                <p class="text-lg italic text-gray-700 leading-relaxed relative z-10">
+                    "Dan di antara tanda-tanda kekuasaan-Nya ialah Dia menciptakan untukmu pasangan-pasangan dari jenismu sendiri, agar kamu cenderung dan merasa tenteram kepadanya, dan Dia menjadikan di antaramu rasa kasih dan sayang. Sungguh, pada yang demikian itu benar-benar terdapat tanda-tanda (kebesaran Allah) bagi kaum yang berpikir."
+                    <br><span class="text-sm">(QS. Ar-Rum: 21)</span>
+                </p>
+            </section>
+
+            <!-- Couple Profile Section -->
+            <section id="couple-profile" class="my-12 text-center bg-white p-8 rounded-xl shadow-lg relative overflow-hidden">
+                <img src="https://placehold.co/200x200/e0e7db/7a8c71?text=Flower" alt="Dekorasi Bunga" class="absolute top-0 left-0 transform -translate-x-1/4 -translate-y-1/4 rotate-180 opacity-30">
+                <img src="https://placehold.co/200x200/e0e7db/7a8c71?text=Flower" alt="Dekorasi Bunga" class="absolute bottom-0 right-0 transform translate-x-1/4 translate-y-1/4 opacity-30">
+                <h2 class="text-4xl font-bold font-title mb-8 text-[#7a8c71] relative z-10">Pengantin</h2>
+
+                <div class="flex flex-col md:flex-row items-center justify-center gap-8 relative z-10">
+                    <!-- Female Profile -->
+                    <div class="w-full md:w-1/2 p-4 text-right">
+                        <div class="relative w-40 h-40 mx-auto md:ml-auto md:mr-0 mb-4 rounded-full overflow-hidden border-4 border-[#b1cba6] shadow-md">
+                            <img src="https://placehold.co/160x160/b1cba6/FFFFFF?text=Adinda" alt="Foto Adinda" class="w-full h-full object-cover">
+                        </div>
+                        <p class="text-xl font-semibold text-gray-700">Adinda Mawaria</p>
+                        <p class="text-sm text-gray-600">Putri bungsu dari</p>
+                        <p class="text-sm text-gray-600">Bapak Sanusi S.M</p>
+                        <p class="text-sm text-gray-600">& Ibu Jubaedah</p>
+                        <a href="https://instagram.com/adinda" target="_blank" class="text-[#7a8c71] hover:underline text-sm mt-2 block">@adinda</a>
+                    </div>
+
+                    <div class="text-5xl font-title text-[#7a8c71] relative z-10">&</div>
+
+                    <!-- Male Profile -->
+                    <div class="w-full md:w-1/2 p-4 text-left">
+                        <div class="relative w-40 h-40 mx-auto md:mr-auto md:ml-0 mb-4 rounded-full overflow-hidden border-4 border-[#b1cba6] shadow-md">
+                            <img src="https://placehold.co/160x160/b1cba6/FFFFFF?text=John" alt="Foto John" class="w-full h-full object-cover">
+                        </div>
+                        <p class="text-xl font-semibold text-gray-700">John Doe S.kom</p>
+                        <p class="text-sm text-gray-600">Putra pertama dari</p>
+                        <p class="text-sm text-gray-600">Bapak Akbar S.kom</p>
+                        <p class="text-sm text-gray-600">& Ibu Siti Maimunah</p>
+                        <a href="https://instagram.com/john_doe" target="_blank" class="text-[#7a8c71] hover:underline text-sm mt-2 block">@john_doe</a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Gallery Section -->
+            <section id="gallery" class="my-12 bg-white p-8 rounded-xl shadow-lg">
+                <h2 class="text-4xl font-bold font-title text-center mb-8 text-[#7a8c71]">Momen Indah</h2>
+                <p class="text-center text-gray-700 mb-8 italic">
+                    "Menciptakan kenangan adalah hadiah yang tak ternilai. Kenangan bertahan seumur hidup; objek hanya bertahan sebentar."
+                </p>
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <img src="https://placehold.co/300x400/d2e0cc/7a8c71?text=Galeri+1" alt="Galeri 1" class="w-full h-auto rounded-lg shadow-md object-cover aspect-square">
+                    <img src="https://placehold.co/400x300/d2e0cc/7a8c71?text=Galeri+2" alt="Galeri 2" class="w-full h-auto rounded-lg shadow-md object-cover aspect-square">
+                    <img src="https://placehold.co/300x300/d2e0cc/7a8c71?text=Galeri+3" alt="Galeri 3" class="w-full h-auto rounded-lg shadow-md object-cover aspect-square">
+                    <img src="https://placehold.co/400x500/d2e0cc/7a8c71?text=Galeri+4" alt="Galeri 4" class="w-full h-auto rounded-lg shadow-md object-cover aspect-square">
+                    <img src="https://placehold.co/500x300/d2e0cc/7a8c71?text=Galeri+5" alt="Galeri 5" class="w-full h-auto rounded-lg shadow-md object-cover aspect-square">
+                    <img src="https://placehold.co/350x450/d2e0cc/7a8c71?text=Galeri+6" alt="Galeri 6" class="w-full h-auto rounded-lg shadow-md object-cover aspect-square">
+                </div>
+            </section>
+
+            <!-- Event Details Section -->
+            <section id="event-details" class="my-12 bg-white p-8 rounded-xl shadow-lg">
+                <h2 class="text-4xl font-bold font-title text-center mb-8 text-[#7a8c71]">Simpan Tanggal</h2>
+
+                <!-- Countdown Timer -->
+                <div class="text-center mb-8">
+                    <h3 class="text-2xl font-semibold mb-4 text-gray-700">Hitung Mundur Pernikahan</h3>
+                    <div id="countdown" class="flex justify-center items-center space-x-4 text-gray-800">
+                        <div class="flex flex-col items-center bg-[#d2e0cc] p-4 rounded-xl shadow-md">
+                            <span id="days" class="text-4xl font-bold font-title text-[#7a8c71]">0</span>
+                            <span class="text-sm">Hari</span>
+                        </div>
+                        <div class="flex flex-col items-center bg-[#d2e0cc] p-4 rounded-xl shadow-md">
+                            <span id="hours" class="text-4xl font-bold font-title text-[#7a8c71]">0</span>
+                            <span class="text-sm">Jam</span>
+                        </div>
+                        <div class="flex flex-col items-center bg-[#d2e0cc] p-4 rounded-xl shadow-md">
+                            <span id="minutes" class="text-4xl font-bold font-title text-[#7a8c71]">0</span>
+                            <span class="text-sm">Menit</span>
+                        </div>
+                        <div class="flex flex-col items-center bg-[#d2e0cc] p-4 rounded-xl shadow-md">
+                            <span id="seconds" class="text-4xl font-bold font-title text-[#7a8c71]">0</span>
+                            <span class="text-sm">Detik</span>
+                        </div>
+                    </div>
+                    <p class="text-lg mt-6 text-gray-700">Kamis, 6 November 2025</p>
+                    <a href="#" id="add-to-calendar" class="inline-block mt-4 bg-[#7a8c71] text-white px-6 py-2 rounded-full shadow-md hover:bg-[#6b7c62] transition duration-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-calendar-plus inline-block mr-2" viewBox="0 0 16 16" width="1em" height="1em">
+                            <path d="M8 7a.5.5 0 0 1 .5.5V9H10a.5.5 0 0 1 0 1H8.5v1.5a.5.5 0 0 1-1 0V10H6a.5.5 0 0 1 0-1h1.5V7.5A.5.5 0 0 1 8 7z"/>
+                            <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
+                        </svg>
+                        Simpan ke Kalender
+                    </a>
+                </div>
+
+                <!-- Akad Nikah Details -->
+                <div class="mt-12 p-6 bg-[#d2e0cc] rounded-xl shadow-md relative overflow-hidden">
+                    <h3 class="text-3xl font-bold font-title mb-4 text-[#7a8c71]">Akad Nikah</h3>
+                    <p class="text-lg text-gray-700">Jumat, 28 April 2023</p>
+                    <p class="text-md text-gray-600 flex items-center justify-center md:justify-start">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-clock w-4 h-4 mr-2" viewBox="0 0 16 16">
+                            <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/>
+                            <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/>
+                        </svg>
+                        Pukul 09:00 WIB - Selesai
+                    </p>
+                    <p class="text-md text-gray-600 mt-2 flex items-center justify-center md:justify-start text-center md:text-left">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-geo-alt w-4 h-4 mr-2 flex-shrink-0" viewBox="0 0 16 16">
+                            <path d="M12.166 8.94c-.524 1.062-1.234 2.12-1.96 3.07A31.493 31.493 0 0 1 8 14.58a31.481 31.481 0 0 1-2.206-2.57c-.726-.95-1.436-2.008-1.96-3.07C3.304 7.867 3 6.862 3 6a5 5 0 0 1 10 0c0 .862-.305 1.867-.834 2.94zM8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10z"/>
+                            <path d="M8 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+                        </svg>
+                        Masjid Al - Barkah, Jl. Veteran No.46, RT.003/RW.004, Marga Jaya, Kec. Bekasi Sel., Kota Bks, Jawa Barat 17141
+                    </p>
+                    <a href="https://maps.google.com/?cid=685464459623750616" target="_blank" class="inline-block mt-4 border border-[#7a8c71] text-[#7a8c71] px-6 py-2 rounded-full hover:bg-[#7a8c71] hover:text-white transition duration-300">Lihat Lokasi</a>
+                </div>
+
+                <!-- Resepsi Details -->
+                <div class="mt-8 p-6 bg-[#d2e0cc] rounded-xl shadow-md relative overflow-hidden">
+                    <h3 class="text-3xl font-bold font-title mb-4 text-[#7a8c71]">Resepsi</h3>
+                    <p class="text-lg text-gray-700">Jumat, 15 Maret 2024</p>
+                    <p class="text-md text-gray-600 flex items-center justify-center md:justify-start">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-clock w-4 h-4 mr-2" viewBox="0 0 16 16">
+                            <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/>
+                            <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/>
+                        </svg>
+                        Pukul 15:00 WIB - Selesai
+                    </p>
+                    <p class="text-md text-gray-600 mt-2 flex items-center justify-center md:justify-start text-center md:text-left">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-geo-alt w-4 h-4 mr-2 flex-shrink-0" viewBox="0 0 16 16">
+                            <path d="M12.166 8.94c-.524 1.062-1.234 2.12-1.96 3.07A31.493 31.493 0 0 1 8 14.58a31.481 31.481 0 0 1-2.206-2.57c-.726-.95-1.436-2.008-1.96-3.07C3.304 7.867 3 6.862 3 6a5 5 0 0 1 10 0c0 .862-.305 1.867-.834 2.94zM8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10z"/>
+                            <path d="M8 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+                        </svg>
+                        DoubleTree by Hilton Jakarta - Diponegoro, Jakarta Pusat
+                    </p>
+                    <a href="https://www.google.com/maps/place/Plataran+Menteng/@-6.191967,106.8263864,17z/data=!3m1!4b1!4m5!3m4!1s0x2e69f423590651f7:0x983424b56075bd8!8m2!3d-6.191967!4d106.8285751" target="_blank" class="inline-block mt-4 border border-[#7a8c71] text-[#7a8c71] px-6 py-2 rounded-full hover:bg-[#7a8c71] hover:text-white transition duration-300">Lihat Lokasi</a>
+                </div>
+
+                <!-- Google Maps Embed -->
+                <div class="mt-8 rounded-xl overflow-hidden shadow-md">
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3966.3051886000004!2d106.8263864147699!3d-6.19196709549303!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69f423590651f7%3A0x983424b56075bd8!2sPlataran%20Menteng!5e0!3m2!1sen!2sid!4v1678901234567!5m2!1sen!2sid" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+
+                <!-- RSVP Section -->
+                <div class="mt-8 text-center bg-[#7a8c71] text-white p-6 rounded-xl shadow-lg relative overflow-hidden">
+                    <h3 class="text-2xl font-semibold mb-4">Konfirmasi Kehadiran</h3>
+                    <p class="mb-4">
+                        <b class="text-[#d2e0cc]">310 tamu</b> telah mengkonfirmasi kehadiran. Mari kirimkan konfirmasi Anda juga!
+                    </p>
+                    <button id="rsvp-button" class="bg-white text-[#7a8c71] px-8 py-3 rounded-full shadow-lg hover:bg-gray-100 transition duration-300 transform hover:scale-105">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-card-checklist inline-block mr-2" viewBox="0 0 16 16" width="1em" height="1em">
+                            <path d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h13zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-13z"/>
+                            <path d="M7 5.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0zM7 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 0 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0z"/>
+                        </svg>
+                        Konfirmasi Kehadiran
+                    </button>
+                </div>
+            </section>
+
+            <!-- Live Streaming Section -->
+            <section id="live-streaming" class="my-12 bg-white p-8 rounded-xl shadow-lg">
+                <h2 class="text-4xl font-bold font-title text-center mb-8 text-[#7a8c71]">Live Streaming</h2>
+                <p class="text-center text-gray-700 mb-8">
+                    Silakan bergabung dalam siaran langsung kami.
+                </p>
+                <div class="aspect-video w-full rounded-lg overflow-hidden shadow-md">
+                    <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="w-full h-full"></iframe>
+                </div>
+                <div class="text-center mt-8">
+                    <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank" class="inline-block bg-[#7a8c71] text-white px-6 py-2 rounded-full shadow-md hover:bg-[#6b7c62] transition duration-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-camera-video inline-block mr-2" viewBox="0 0 16 16" width="1em" height="1em">
+                            <path fill-rule="evenodd" d="M0 5a2 2 0 0 1 2-2h7.5a2 2 0 0 1 1.983 1.738l3.11-1.382A1 1 0 0 1 16 4.269v7.462a1 1 0 0 1-1.406.913l-3.111-1.382A2 2 0 0 1 9.5 13H2a2 2 0 0 1-2-2V5zm11.5 5.175l3.5 1.556V4.269l-3.5 1.556v4.35zM2 4a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h7.5a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1H2z"/>
+                        </svg>
+                        Tonton Live Streaming
+                    </a>
+                </div>
+            </section>
+
+            <!-- Gifts Section (New) -->
+            <section id="gifts" class="my-12 bg-white p-8 rounded-xl shadow-lg">
+                <h2 class="text-4xl font-bold font-title text-center mb-8 text-[#4CAF50]">Kirim Kado</h2>
+                <p class="text-center text-gray-700 mb-8 italic">
+                    "Kehadiran dan doa restu Anda adalah kado terindah bagi kami. Namun, jika Anda ingin memberikan tanda kasih, kami menyediakan opsi berikut."
+                </p>
+
+                <!-- Bank Transfer Section -->
+                <div class="mt-8 p-6 bg-[#d2e0cc] rounded-xl shadow-md">
+                    <h3 class="text-2xl font-semibold mb-4 text-[#7a8c71]">Transfer Bank</h3>
+                    <div class="space-y-6">
+                        <!-- Bank Account 1 -->
+                        <div class="border border-[#b1cba6] p-4 rounded-lg flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                            <div>
+                                <p class="text-lg font-semibold text-gray-800">Bank BCA</p>
+                                <p class="text-md text-gray-700">A.N. Adinda Mawaria</p>
+                                <p id="bca-account-number" class="text-xl font-bold text-[#4CAF50]">1234567890</p>
+                            </div>
+                            <button onclick="copyToClipboard('bca-account-number')" class="mt-3 sm:mt-0 bg-[#4CAF50] text-white px-4 py-2 rounded-full text-sm hover:bg-[#3d8c3f] transition duration-300">
+                                Salin Nomor
+                            </button>
+                        </div>
+                        <!-- Bank Account 2 -->
+                        <div class="border border-[#b1cba6] p-4 rounded-lg flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                            <div>
+                                <p class="text-lg font-semibold text-gray-800">Bank Mandiri</p>
+                                <p class="text-md text-gray-700">A.N. John Doe</p>
+                                <p id="mandiri-account-number" class="text-xl font-bold text-[#4CAF50]">0987654321</p>
+                            </div>
+                            <button onclick="copyToClipboard('mandiri-account-number')" class="mt-3 sm:mt-0 bg-[#4CAF50] text-white px-4 py-2 rounded-full text-sm hover:bg-[#3d8c3f] transition duration-300">
+                                Salin Nomor
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- QRIS Section -->
+                <div class="mt-8 p-6 bg-[#d2e0cc] rounded-xl shadow-md">
+                    <h3 class="text-2xl font-semibold mb-4 text-[#7a8c71]">QRIS (Dana)</h3>
+                    <div class="flex flex-col items-center">
+                        <p class="text-lg font-semibold text-gray-800 mb-4">Scan untuk Dana</p>
+                        <img src="https://placehold.co/200x200/b1cba6/7a8c71?text=QRIS+Code" alt="QRIS Code" class="w-48 h-48 rounded-lg shadow-md mb-4">
+                        <button onclick="showCustomAlert('QRIS code disalin (simulasi).')" class="bg-[#4CAF50] text-white px-6 py-2 rounded-full shadow-md hover:bg-[#3d8c3f] transition duration-300">
+                            Salin QRIS
+                        </button>
+                        <p class="text-sm text-gray-600 mt-2">Pastikan nama penerima sesuai: Adinda & John</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Wishes Section -->
+            <section id="wishes" class="my-12 bg-[#7a8c71] p-8 rounded-xl shadow-lg relative overflow-hidden">
+                <h2 class="text-4xl font-bold font-title text-center mb-8 text-white">Ucapan & Doa</h2>
+
+                <!-- Wishes Form -->
+                <div class="bg-white p-6 rounded-xl shadow-md mb-8">
+                    <h3 class="text-2xl font-semibold mb-4 text-gray-700">Kirim Ucapan Anda</h3>
+                    <form id="wish-form">
+                        <div class="mb-4">
+                            <label for="guest-name" class="block text-gray-700 text-sm font-bold mb-2">Nama Lengkap:</label>
+                            <input type="text" id="guest-name" name="name" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-[#b1cba6]" placeholder="Nama Anda" required>
+                        </div>
+                        <div class="mb-4">
+                            <label for="guest-address" class="block text-gray-700 text-sm font-bold mb-2">Alamat (Opsional):</label>
+                            <input type="text" id="guest-address" name="address" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-[#b1cba6]" placeholder="Alamat Anda">
+                        </div>
+                        <div class="mb-6">
+                            <label for="wish-message" class="block text-gray-700 text-sm font-bold mb-2">Pesan Ucapan:</label>
+                            <textarea id="wish-message" name="message" rows="4" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-[#b1cba6]" placeholder="Selamat atas pernikahan kalian..." required></textarea>
+                        </div>
+                        <button type="submit" class="bg-[#7a8c71] text-white px-6 py-2 rounded-full shadow-md hover:bg-[#6b7c62] transition duration-300">
+                            Kirim Ucapan
+                        </button>
+                    </form>
+                    <p id="form-message" class="mt-4 text-sm text-center text-red-500 hidden"></p>
+                </div>
+
+                <!-- Display Wishes -->
+                <div id="wishes-list" class="bg-white p-6 rounded-xl shadow-md max-h-96 overflow-y-auto">
+                    <h3 class="text-2xl font-semibold mb-4 text-gray-700">Daftar Ucapan</h3>
+                    <!-- Wishes will be loaded here by JavaScript -->
+                    <p id="no-wishes-message" class="text-gray-500 text-center">Belum ada ucapan. Jadilah yang pertama!</p>
+                </div>
+            </section>
+
+            <!-- Footer -->
+            <footer class="text-center py-8 text-gray-600">
+                <p>&copy; 2024 Undangan Pernikahan Adinda & John. Dibuat dengan ❤️</p>
+                <p class="text-sm">Powered by Our Wedding Link (Template)</p>
+            </footer>
+
+        </main>
     </div>
 
-    <div class="section bg-white">
-      <h2 class="text-center mb-4">Apa Kata Mereka?</h2>
-      <div class="row justify-content-center">
-        <div class="col-md-4 text-center">
-          <img src="https://randomuser.me/api/portraits/women/45.jpg" class="testimoni-img mb-3" alt="">
-          <p class="fst-italic">"Undangan kami jadi lebih berkesan! Desainnya keren dan praktis banget."</p>
-          <strong>- Ayu & Rama</strong>
-        </div>
-        <div class="col-md-4 text-center">
-          <img src="https://randomuser.me/api/portraits/men/31.jpg" class="testimoni-img mb-3" alt="">
-          <p class="fst-italic">"Pelayanannya cepat dan hasilnya luar biasa. Recommended banget!"</p>
-          <strong>- Dinda & Reza</strong>
-        </div>
-      </div>
+    <!-- Falling Leaves Animation Container -->
+    <div id="leaves" class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <!-- Leaves will be dynamically added here by JavaScript -->
     </div>
 
-    <div class="section text-center">
-      <h2>Yuk Buat Undangan Online Kamu Sekarang!</h2>
-      <p class="mb-4">Tidak perlu repot cetak, cukup bagikan link kepada semua tamu.</p>
-      <a href="#" class="btn btn-success">Mulai Sekarang</a>
-    </div>
-  </div>
 
-  <footer>
-    <p>&copy; 2025 KamiNikah. All rights reserved.</p>
-  </footer>
+    <script type="module">
+        // Firebase Configuration (provided by the environment)
+        const firebaseConfig = {
+            apiKey: "AIzaSyCLyyyp5RKndzc-cb1QeZrXgzTjjbbv2vE",
+            authDomain: "undangan-pernikahan-11ec1.firebaseapp.com",
+            projectId: "undangan-pernikahan-11ec1",
+            storageBucket: "undangan-pernikahan-11ec1.firebasestorage.app",
+            messagingSenderId: "404754672902",
+            appId: "1:404754672902:web:177d0f49b8af3834250287",
+            measurementId: "G-R2CGJKD57Q"
+        };
+
+        // Menggunakan projectId sebagai appId untuk koleksi data Anda
+        const myAppId = firebaseConfig.projectId;
+
+        // Import Firebase SDKs
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js';
+        import { getAuth, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
+        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
+
+        let app, db, auth, userId;
+
+        /**
+         * Initializes Firebase and authenticates the user.
+         */
+        async function initializeFirebase() {
+            try {
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                // Autentikasi anonim untuk memungkinkan pengguna menulis ucapan
+                await signInAnonymously(auth);
+
+                // Listen for auth state changes to get the user ID
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        console.log("Firebase initialized. User ID:", userId);
+                        // Once authenticated, load wishes
+                        setupWishesListener();
+                    } else {
+                        console.log("No user signed in. Generating anonymous ID.");
+                        userId = crypto.randomUUID(); // Generate a random ID for unauthenticated users
+                        setupWishesListener(); // Still try to load wishes, but they won't be user-specific
+                    }
+                });
+
+            } catch (error) {
+                console.error("Error initializing Firebase:", error);
+                // Menambahkan pesan yang lebih spesifik untuk membantu debugging
+                if (error.code === 'auth/configuration-not-found') {
+                    document.getElementById('form-message').textContent = 'Error Firebase: Konfigurasi autentikasi tidak ditemukan. Pastikan Autentikasi Anonim diaktifkan di konsol Firebase Anda.';
+                } else {
+                    document.getElementById('form-message').textContent = 'Error initializing Firebase. Silakan coba lagi nanti.';
+                }
+                document.getElementById('form-message').classList.remove('hidden');
+            }
+        }
+
+        // Call Firebase initialization
+        initializeFirebase();
+
+        // DOM Elements
+        const welcomeScreen = document.getElementById('welcome-screen');
+        const mainContent = document.getElementById('main-content');
+        const openInvitationBtn = document.getElementById('open-invitation');
+        const backgroundMusic = document.getElementById('background-music');
+        const musicControl = document.getElementById('music-control');
+        const musicIcon = document.getElementById('music-icon');
+        const countdownDays = document.getElementById('days');
+        const countdownHours = document.getElementById('hours');
+        const countdownMinutes = document.getElementById('minutes');
+        const countdownSeconds = document.getElementById('seconds');
+        const wishForm = document.getElementById('wish-form');
+        const wishesList = document.getElementById('wishes-list');
+        const noWishesMessage = document.getElementById('no-wishes-message');
+        const formMessage = document.getElementById('form-message');
+
+        let isMusicPlaying = false;
+
+        // --- Event Listeners ---
+
+        // Open Invitation Button
+        openInvitationBtn.addEventListener('click', () => {
+            welcomeScreen.style.opacity = '0';
+            setTimeout(() => {
+                welcomeScreen.classList.add('hidden');
+                mainContent.classList.remove('hidden');
+                mainContent.classList.add('animate__animated', 'animate__fadeIn');
+                playMusic(); // Play music when invitation is opened
+            }, 1000); // Wait for fade-out animation
+        });
+
+        // Music Control Button
+        musicControl.addEventListener('click', () => {
+            if (isMusicPlaying) {
+                pauseMusic();
+            } else {
+                playMusic();
+            }
+        });
+
+        // Wishes Form Submission
+        wishForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            formMessage.classList.add('hidden'); // Hide previous messages
+
+            const name = document.getElementById('guest-name').value;
+            const address = document.getElementById('guest-address').value;
+            const message = document.getElementById('wish-message').value;
+
+            if (!db || !userId) {
+                formMessage.textContent = 'Firebase not initialized. Please try again.';
+                formMessage.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                // Store wishes in a public collection
+                // Menggunakan myAppId yang baru
+                const wishesCollectionRef = collection(db, `artifacts/${myAppId}/public/data/wishes`);
+                await addDoc(wishesCollectionRef, {
+                    name,
+                    address,
+                    message,
+                    timestamp: serverTimestamp(), // Use server timestamp
+                    userId: userId // Store the user ID who submitted the wish
+                });
+
+                wishForm.reset(); // Clear the form
+                formMessage.textContent = 'Ucapan Anda berhasil dikirim!';
+                formMessage.classList.remove('hidden');
+                formMessage.classList.remove('text-red-500');
+                formMessage.classList.add('text-green-500');
+
+            } catch (e) {
+                console.error("Error adding document: ", e);
+                formMessage.textContent = 'Gagal mengirim ucapan. Silakan coba lagi.';
+                formMessage.classList.remove('hidden');
+                formMessage.classList.remove('text-green-500');
+                formMessage.classList.add('text-red-500');
+            }
+        });
+
+        // --- Functions ---
+
+        /**
+         * Displays a custom alert modal.
+         * @param {string} message - The message to display.
+         */
+        function showCustomAlert(message) {
+            const modal = document.getElementById('custom-alert-modal');
+            const msgElement = document.getElementById('custom-alert-message');
+            const okBtn = document.getElementById('custom-alert-ok-btn');
+
+            msgElement.textContent = message;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            okBtn.onclick = () => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            };
+        }
+
+        /**
+         * Copies text from a specified element to the clipboard.
+         * @param {string} elementId - The ID of the element whose text content will be copied.
+         */
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            let textToCopy = element.textContent;
+
+            // Create a temporary textarea element
+            const tempInput = document.createElement('textarea');
+            tempInput.value = textToCopy;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showCustomAlert('Nomor rekening berhasil disalin!');
+                } else {
+                    showCustomAlert('Gagal menyalin nomor rekening.');
+                }
+            } catch (err) {
+                console.error('Failed to copy: ', err);
+                showCustomAlert('Gagal menyalin nomor rekening.');
+            } finally {
+                document.body.removeChild(tempInput);
+            }
+        }
+
+        /**
+         * Plays the background music.
+         */
+        function playMusic() {
+            backgroundMusic.play().then(() => {
+                isMusicPlaying = true;
+                musicIcon.innerHTML = `<path d="M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2 2.5.895 2.5 2z"/>
+                                       <path fill-rule="evenodd" d="M12 3v10h-1V3h1z"/>
+                                       <path d="M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1V2.82z"/>
+                                       <path fill-rule="evenodd" d="M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5zm0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5zm0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5z"/>`; // Music note icon
+            }).catch(error => {
+                console.error("Error playing music:", error);
+                // Handle autoplay policy issues: user might need to interact first
+                musicIcon.innerHTML = `<path d="M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2 2.5.895 2.5 2z"/>
+                                       <path fill-rule="evenodd" d="M12 3v10h-1V3h1z"/>
+                                       <path d="M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1V2.82z"/>
+                                       <path fill-rule="evenodd" d="M0 11.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5zm0-4A.5.5 0 0 1 .5 7H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5zm0-4A.5.5 0 0 1 .5 3H8a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5z"/>`; // Music note icon (still showing, but greyed out or with a slash)
+            });
+        }
+
+        /**
+         * Pauses the background music.
+         */
+        function pauseMusic() {
+            backgroundMusic.pause();
+            isMusicPlaying = false;
+            musicIcon.innerHTML = `<path d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM11 2.5a2.5 2.5 0 1 1 .64 4.95l-5.34 2.57C5.03 10.15 4 11.3 4 12.5a3.5 3.5 0 1 0 3.5 3.5c1.19 0 2.19-.8 2.5-1.95l5.34-2.57a1.5 1.5 0 0 0 0-3z"/>`; // Muted music note icon
+        }
+
+        /**
+         * Sets up real-time listener for wishes from Firestore.
+         */
+        function setupWishesListener() {
+            if (!db) {
+                console.warn("Firestore not initialized for wishes listener.");
+                return;
+            }
+
+            // Query to fetch wishes, ordered by timestamp
+            const q = query(collection(db, `artifacts/${myAppId}/public/data/wishes`), orderBy("timestamp", "desc"));
+
+            onSnapshot(q, (snapshot) => {
+                wishesList.innerHTML = ''; // Clear existing wishes
+                if (snapshot.empty) {
+                    noWishesMessage.classList.remove('hidden');
+                } else {
+                    noWishesMessage.classList.add('hidden');
+                    snapshot.forEach((doc) => {
+                        const wish = doc.data();
+                        const wishElement = document.createElement('div');
+                        wishElement.classList.add('mb-4', 'p-4', 'bg-[#d2e0cc]', 'rounded-lg', 'shadow-sm', 'relative');
+
+                        // Basic avatar logic (first letter of name)
+                        const avatarInitial = wish.name ? wish.name.charAt(0).toUpperCase() : '?';
+                        const avatarColor = `hsl(${Math.random() * 360}, 70%, 70%)`; // Random color for avatar
+
+                        wishElement.innerHTML = `
+                            <div class="flex items-start">
+                                <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg mr-4 flex-shrink-0" style="background-color: ${avatarColor};">
+                                    ${avatarInitial}
+                                </div>
+                                <div class="flex-grow">
+                                    <p class="font-semibold text-gray-800">${wish.name} <span class="text-sm text-gray-500">(${wish.address || 'Tanpa Alamat'})</span></p>
+                                    <p class="text-gray-700 mt-1">${wish.message}</p>
+                                    <p class="text-xs text-gray-500 mt-2">
+                                        ${wish.timestamp ? new Date(wish.timestamp.toDate()).toLocaleString() : 'Loading...'}
+                                        <span class="ml-2 text-blue-500">User ID: ${wish.userId ? wish.userId.substring(0, 8) + '...' : 'N/A'}</span>
+                                    </p>
+                                </div>
+                            </div>
+                        `;
+                        wishesList.appendChild(wishElement);
+                    });
+                }
+            }, (error) => {
+                console.error("Error fetching wishes:", error);
+                wishesList.innerHTML = `<p class="text-red-500 text-center">Gagal memuat ucapan: ${error.message}</p>`;
+            });
+        }
+
+
+        // --- Countdown Timer Logic ---
+        const weddingDate = new Date("November 6, 2025 09:00:00").getTime(); // Set your wedding date and time here
+
+        const updateCountdown = setInterval(() => {
+            const now = new Date().getTime();
+            const distance = weddingDate - now;
+
+            if (distance < 0) {
+                clearInterval(updateCountdown);
+                countdownDays.textContent = "0";
+                countdownHours.textContent = "0";
+                countdownMinutes.textContent = "0";
+                countdownSeconds.textContent = "0";
+                // You can add a message like "Acara Telah Berlangsung" here
+                return;
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            countdownDays.textContent = days;
+            countdownHours.textContent = hours;
+            countdownMinutes.textContent = minutes;
+            countdownSeconds.textContent = seconds;
+        }, 1000);
+
+        // --- Falling Leaves Animation ---
+        const leavesContainer = document.getElementById('leaves');
+
+        function createLeaf() {
+            const leaf = document.createElement('i');
+            leaf.style.left = Math.random() * 100 + 'vw';
+            leaf.style.animationDuration = Math.random() * 5 + 3 + 's'; // between 3 and 8 seconds
+            leaf.style.opacity = Math.random() * 0.5 + 0.3; // between 0.3 and 0.8
+            leaf.style.transform = `scale(${Math.random() * 0.5 + 0.5})`; // between 0.5 and 1
+            leavesContainer.appendChild(leaf);
+
+            // Remove leaf after it falls
+            leaf.addEventListener('animationend', () => {
+                leaf.remove();
+            });
+        }
+
+        // Generate leaves periodically
+        setInterval(createLeaf, 300); // Create a new leaf every 300ms
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('nav a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+    </script>
 </body>
 </html>
